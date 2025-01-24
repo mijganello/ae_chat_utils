@@ -1,4 +1,4 @@
-const {divideMessagesForRendering, mergeOldMessages} = require("../index")
+const {divideMessagesForRendering, mergeOldMessages, addNewMessage} = require("../index")
 
 describe('divideMessagesForRendering', () => {
 
@@ -51,7 +51,6 @@ describe('divideMessagesForRendering', () => {
 
         expect(result).toEqual([
             { type: 'day', date: '2025-01-12' },
-
             [
                 {
                     "author_uid": 5,
@@ -210,7 +209,6 @@ describe('divideMessagesForRendering', () => {
 
 });
 
-
 describe('mergeOldMessages', () => {
 
     test('пустой массив добавляемых старых сообщений', () => {
@@ -366,7 +364,6 @@ describe('mergeOldMessages', () => {
 
         expect(result).toEqual([]);
     });
-
 
     test('первые сообщения из изначально очищенных имеют другую дата-группу', () => {
         const newDirtyResponse = {
@@ -695,4 +692,300 @@ describe('mergeOldMessages', () => {
             ]
         );
     });
+});
+
+describe('addNewMessage', () => {
+
+    test('Новое сообщение имеет другую дату', () => {
+
+        const socketEvent = {
+            "type": "send_message",
+            "data": {
+                "text": "hellomir",
+                "author_uid": 423,
+                "created": "2025-01-13 15:47:30",
+            }
+        };
+
+        const groupedMessages = [
+            { type: 'day', date: '2025-01-12' },
+            [
+                {
+                    "author_uid": 5,
+                    "text": "Привет! Как дела?",
+                    "created": "2025-01-12 06:00:00",
+
+                },
+                {
+                    "author_uid": 5,
+                    "text": "Привет! Всё отлично, спасибо. Как у тебя?",
+                    "created": "2025-01-12 06:10:00",
+
+                },
+                {
+                    "author_uid": 5,
+                    "text": "Тоже хорошо! Слушай, у меня вопрос по заказу.",
+                    "created": "2025-01-12 06:15:00",
+
+                }
+            ],
+            [
+                {
+                    "author_uid": 423,
+                    "text": "Конечно, спрашивай.",
+                    "created": "2025-01-12 12:51:00",
+
+                }
+            ],
+
+
+        ];
+
+        const result = addNewMessage(socketEvent, groupedMessages);
+
+        expect(result).toEqual([
+            { type: 'day', date: '2025-01-12' },
+            [
+                {
+                    "author_uid": 5,
+                    "text": "Привет! Как дела?",
+                    "created": "2025-01-12 06:00:00",
+
+                },
+                {
+                    "author_uid": 5,
+                    "text": "Привет! Всё отлично, спасибо. Как у тебя?",
+                    "created": "2025-01-12 06:10:00",
+
+                },
+                {
+                    "author_uid": 5,
+                    "text": "Тоже хорошо! Слушай, у меня вопрос по заказу.",
+                    "created": "2025-01-12 06:15:00",
+
+                }
+            ],
+            [
+                {
+                    "author_uid": 423,
+                    "text": "Конечно, спрашивай.",
+                    "created": "2025-01-12 12:51:00",
+
+                }
+            ],
+            { type: 'day', date: '2025-01-13' },
+            [
+                {
+                    "text": "hellomir",
+                    "author_uid": 423,
+                    "created": "2025-01-13 15:47:30",
+                }
+            ]
+
+
+        ]);
+    });
+
+    test('Новое сообщение имеет такую же дату и такого же пользователя как в последнем сообщении', () => {
+
+        const socketEvent = {
+            "type": "send_message",
+            "data": {
+                "text": "hellomir",
+                "author_uid": 423,
+                "created": "2025-01-12 15:47:30",
+            }
+        };
+
+        const groupedMessages = [
+            { type: 'day', date: '2025-01-12' },
+            [
+                {
+                    "author_uid": 5,
+                    "text": "Привет! Как дела?",
+                    "created": "2025-01-12 06:00:00",
+
+                },
+                {
+                    "author_uid": 5,
+                    "text": "Привет! Всё отлично, спасибо. Как у тебя?",
+                    "created": "2025-01-12 06:10:00",
+
+                },
+                {
+                    "author_uid": 5,
+                    "text": "Тоже хорошо! Слушай, у меня вопрос по заказу.",
+                    "created": "2025-01-12 06:15:00",
+
+                }
+            ],
+            [
+                {
+                    "author_uid": 423,
+                    "text": "Конечно, спрашивай.",
+                    "created": "2025-01-12 12:51:00",
+
+                }
+            ],
+
+
+        ];
+
+        const result = addNewMessage(socketEvent, groupedMessages);
+
+        expect(result).toEqual([
+            { type: 'day', date: '2025-01-12' },
+            [
+                {
+                    "author_uid": 5,
+                    "text": "Привет! Как дела?",
+                    "created": "2025-01-12 06:00:00",
+
+                },
+                {
+                    "author_uid": 5,
+                    "text": "Привет! Всё отлично, спасибо. Как у тебя?",
+                    "created": "2025-01-12 06:10:00",
+
+                },
+                {
+                    "author_uid": 5,
+                    "text": "Тоже хорошо! Слушай, у меня вопрос по заказу.",
+                    "created": "2025-01-12 06:15:00",
+
+                }
+            ],
+            [
+                {
+                    "author_uid": 423,
+                    "text": "Конечно, спрашивай.",
+                    "created": "2025-01-12 12:51:00",
+
+                },
+                {
+                    "text": "hellomir",
+                    "author_uid": 423,
+                    "created": "2025-01-12 15:47:30",
+                }
+            ]
+
+        ]);
+    });
+
+    test('Новое сообщение имеет такую же дату, но другого пользователя', () => {
+
+        const socketEvent = {
+            "type": "send_message",
+            "data": {
+                "text": "hellomir",
+                "author_uid": 5,
+                "created": "2025-01-12 15:47:30",
+            }
+        };
+
+        const groupedMessages = [
+            { type: 'day', date: '2025-01-12' },
+            [
+                {
+                    "author_uid": 5,
+                    "text": "Привет! Как дела?",
+                    "created": "2025-01-12 06:00:00",
+
+                },
+                {
+                    "author_uid": 5,
+                    "text": "Привет! Всё отлично, спасибо. Как у тебя?",
+                    "created": "2025-01-12 06:10:00",
+
+                },
+                {
+                    "author_uid": 5,
+                    "text": "Тоже хорошо! Слушай, у меня вопрос по заказу.",
+                    "created": "2025-01-12 06:15:00",
+
+                }
+            ],
+            [
+                {
+                    "author_uid": 423,
+                    "text": "Конечно, спрашивай.",
+                    "created": "2025-01-12 12:51:00",
+
+                }
+            ],
+
+
+        ];
+
+        const result = addNewMessage(socketEvent, groupedMessages);
+
+        expect(result).toEqual([
+            { type: 'day', date: '2025-01-12' },
+            [
+                {
+                    "author_uid": 5,
+                    "text": "Привет! Как дела?",
+                    "created": "2025-01-12 06:00:00",
+
+                },
+                {
+                    "author_uid": 5,
+                    "text": "Привет! Всё отлично, спасибо. Как у тебя?",
+                    "created": "2025-01-12 06:10:00",
+
+                },
+                {
+                    "author_uid": 5,
+                    "text": "Тоже хорошо! Слушай, у меня вопрос по заказу.",
+                    "created": "2025-01-12 06:15:00",
+
+                }
+            ],
+            [
+                {
+                    "author_uid": 423,
+                    "text": "Конечно, спрашивай.",
+                    "created": "2025-01-12 12:51:00",
+
+                }
+            ],
+            [
+                {
+                    "text": "hellomir",
+                    "author_uid": 5,
+                    "created": "2025-01-12 15:47:30",
+                }
+            ]
+
+        ]);
+    });
+
+    test('Чистый массив изначально пустой', () => {
+
+        const socketEvent = {
+            "type": "send_message",
+            "data": {
+                "text": "hellomir",
+                "author_uid": 5,
+                "created": "2025-01-12 15:47:30",
+            }
+        };
+
+        const groupedMessages = [];
+
+        const result = addNewMessage(socketEvent, groupedMessages);
+
+        expect(result).toEqual([
+            { type: 'day', date: '2025-01-12' },
+            [
+                {
+                    "text": "hellomir",
+                    "author_uid": 5,
+                    "created": "2025-01-12 15:47:30",
+                }
+            ]
+
+        ]);
+    });
+
 });
