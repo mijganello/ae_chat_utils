@@ -186,9 +186,51 @@ function addNewMessage(socketEvent, groupedMessages) {
     return groupedMessages;
 }
 
+function createSocketConnection(url) {
+    // Создаём новый объект WebSocket и начинаем подключение
+    const socket = new WebSocket(url);
+
+    // Обработчик события успешного подключения
+    socket.onopen = function() {
+        console.log(`Соединение установлено с ${url}`);
+    };
+
+    // Обработчик входящих сообщений
+    socket.onmessage = function(event) {
+        console.log("Получено сообщение:", event.data);
+    };
+
+    // Обработчик ошибок
+    socket.onerror = function(error) {
+        console.error("Ошибка сокета:", error);
+    };
+
+    // Обработчик закрытия соединения
+    socket.onclose = function() {
+        console.log("Соединение закрыто");
+    };
+
+    // Возвращаем объект сокета
+    return socket;
+}
+
+
+const getCookie = (name) => {
+    const matches = document.cookie.match(
+        new RegExp(
+            // Экранируем специальные символы в имени куки
+            "(?:^|; )" + name.replace(/([\.$?*|{}\(\)\[\]\\\/\+^])/g, '\\$1') + "=([^;]*)"
+        )
+    );
+    return matches ? decodeURIComponent(matches[1]) : undefined;
+};
+
+
 
 module.exports = {
     divideMessagesForRendering,
     mergeOldMessages,
     addNewMessage,
+    createSocketConnection,
+    getCookie
 };
