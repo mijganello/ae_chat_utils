@@ -132,59 +132,60 @@ function addNewMessage(socketEvent, groupedMessages) {
     const newMessage = socketEvent.data;
     const messageDate = new Date(newMessage.created).toISOString().split('T')[0];
 
-    // Найти последний объект в массиве
-    const lastElement = groupedMessages[groupedMessages.length - 1];
+    // Создаём копию groupedMessages:
+    // Если группы являются массивами или объектами, нужно копировать их глубже.
+    const newGroupedMessages = groupedMessages.map(group =>
+        Array.isArray(group) ? [...group] : { ...group }
+    );
+
+    const lastElement = newGroupedMessages[newGroupedMessages.length - 1];
 
     if (lastElement && lastElement.type === 'day') {
-        // Последний элемент — day-group
         if (lastElement.date === messageDate) {
-            // Дата совпадает, добавляем в последнюю группу
-            const lastMessageGroup = groupedMessages[groupedMessages.length - 2];
-
-            if (Array.isArray(lastMessageGroup)) {
+            // Получаем предыдущую группу сообщений (если есть)
+            const lastGroupIndex = newGroupedMessages.length - 2;
+            if (lastGroupIndex >= 0 && Array.isArray(newGroupedMessages[lastGroupIndex])) {
+                const lastMessageGroup = newGroupedMessages[lastGroupIndex];
                 const lastMessage = lastMessageGroup[lastMessageGroup.length - 1];
 
-                // Если автор последнего сообщения совпадает
                 if (lastMessage.author_uid === newMessage.author_uid) {
+                    // Добавляем сообщение в существующую группу
                     lastMessageGroup.push(newMessage);
                 } else {
-                    // Создаём новую группу сообщений
-                    groupedMessages.push([newMessage]);
+                    // Если автор отличается — создаём новую группу
+                    newGroupedMessages.push([newMessage]);
                 }
             } else {
-                // Если последняя группа не массив, создаём новую
-                groupedMessages.push([newMessage]);
+                newGroupedMessages.push([newMessage]);
             }
         } else {
-            // Дата не совпадает, создаём новый day-group и группу сообщений
-            groupedMessages.push({ type: 'day', date: messageDate });
-            groupedMessages.push([newMessage]);
+            // Если дата не совпадает — создаём новую day-группу и группу сообщений
+            newGroupedMessages.push({ type: 'day', date: messageDate });
+            newGroupedMessages.push([newMessage]);
         }
     } else if (Array.isArray(lastElement)) {
-        // Последний элемент — массив сообщений
         const lastMessage = lastElement[lastElement.length - 1];
         const lastMessageDate = new Date(lastMessage.created).toISOString().split('T')[0];
 
         if (lastMessageDate === messageDate) {
-            // Дата совпадает, проверяем автора
             if (lastMessage.author_uid === newMessage.author_uid) {
                 lastElement.push(newMessage);
             } else {
-                groupedMessages.push([newMessage]);
+                newGroupedMessages.push([newMessage]);
             }
         } else {
-            // Дата не совпадает
-            groupedMessages.push({ type: 'day', date: messageDate });
-            groupedMessages.push([newMessage]);
+            newGroupedMessages.push({ type: 'day', date: messageDate });
+            newGroupedMessages.push([newMessage]);
         }
     } else {
         // Если массив пуст или последний элемент некорректный
-        groupedMessages.push({ type: 'day', date: messageDate });
-        groupedMessages.push([newMessage]);
+        newGroupedMessages.push({ type: 'day', date: messageDate });
+        newGroupedMessages.push([newMessage]);
     }
 
-    return groupedMessages;
+    return newGroupedMessages;
 }
+
 
 function createSocketConnection(url) {
     // Создаём новый объект WebSocket и начинаем подключение

@@ -699,14 +699,15 @@ describe('addNewMessage', () => {
     test('Новое сообщение имеет другую дату', () => {
 
         const socketEvent = {
-            "type": "send_message",
             "data": {
-                "text": "hellomir",
-                "author_uid": 423,
-                "created": "2025-01-13 15:47:30",
+                "id": "34",
+                "author_uid": "5",
+                "text": "boogie",
+                "created": "2025-02-07 14:47:15",
+                "chat_id": "1",
+                "status": "2"
             }
-        };
-
+        }
         const groupedMessages = [
             { type: 'day', date: '2025-01-12' },
             [
@@ -773,12 +774,15 @@ describe('addNewMessage', () => {
 
                 }
             ],
-            { type: 'day', date: '2025-01-13' },
+            { type: 'day', date: '2025-02-07' },
             [
                 {
-                    "text": "hellomir",
-                    "author_uid": 423,
-                    "created": "2025-01-13 15:47:30",
+                    "id": "34",
+                    "author_uid": "5",
+                    "text": "boogie",
+                    "created": "2025-02-07 14:47:15",
+                    "chat_id": "1",
+                    "status": "2"
                 }
             ]
 
