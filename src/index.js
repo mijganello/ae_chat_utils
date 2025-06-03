@@ -220,6 +220,7 @@ const getCookie = (name) => {
     const matches = document.cookie.match(
         new RegExp(
             // Экранируем специальные символы в имени куки
+            // eslint-disable-next-line no-useless-escape
             "(?:^|; )" + name.replace(/([\.$?*|{}\(\)\[\]\\\/\+^])/g, '\\$1') + "=([^;]*)"
         )
     );
